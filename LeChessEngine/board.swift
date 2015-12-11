@@ -31,6 +31,31 @@ extension BitBoard {
     func printBinary() {
         print(String(self, radix: 2))
     }
+    
+    
+    func reverse() -> BitBoard {
+        var i = self
+        // HD, Figure 7-1
+        i = (i & 0x5555555555555555) << 1 | (i >> 1) & 0x5555555555555555;
+        i = (i & 0x3333333333333333) << 2 | (i >> 2) & 0x3333333333333333;
+        i = (i & 0x0f0f0f0f0f0f0f0f) << 4 | (i >> 4) & 0x0f0f0f0f0f0f0f0f;
+        i = (i & 0x00ff00ff00ff00ff) << 8 | (i >> 8) & 0x00ff00ff00ff00ff;
+        i = (i << 48) | ((i & 0xffff0000) << 16) |
+            ((i >> 16) & 0xffff0000) | (i >> 48);
+        return i;
+    }
+    
+}
+
+func reverse(var i:BitBoard) -> BitBoard {
+    // HD, Figure 7-1
+    i = (i & 0x5555555555555555) << 1 | (i >> 1) & 0x5555555555555555;
+    i = (i & 0x3333333333333333) << 2 | (i >> 2) & 0x3333333333333333;
+    i = (i & 0x0f0f0f0f0f0f0f0f) << 4 | (i >> 4) & 0x0f0f0f0f0f0f0f0f;
+    i = (i & 0x00ff00ff00ff00ff) << 8 | (i >> 8) & 0x00ff00ff00ff00ff;
+    i = (i << 48) | ((i & 0xffff0000) << 16) |
+        ((i >> 16) & 0xffff0000) | (i >> 48);
+    return i;
 }
 
 enum Color {
@@ -43,23 +68,36 @@ struct CastleState {
     var QueenSide = true
 }
 
-enum Piece {
-    case WhitePawn
-    case WhiteRook
-    case WhiteKnight
-    case WhiteBishop
-    case WhiteQueen
-    case WhiteKing
-    case BlackPawn
-    case BlackRook
-    case BlackKnight
-    case BlackBishop
-    case BlackQueen
-    case BlackKing
-    case None
+enum Piece:Character {
+    case WhitePawn = "P"
+    case WhiteRook = "R"
+    case WhiteKnight = "N"
+    case WhiteBishop = "B"
+    case WhiteQueen = "Q"
+    case WhiteKing = "K"
+    case BlackPawn = "p"
+    case BlackRook = "r"
+    case BlackKnight = "n"
+    case BlackBishop = "b"
+    case BlackQueen = "q"
+    case BlackKing = "k"
+    case None = " "
 }
 
 enum Square:Int {
+    // --------------------------------
+    // Little Endian Rank File Mapping
+    // --------------------------------
+    //
+    //  noWe         nort         noEa
+    //          +7    +8    +9
+    //              \  |  /
+    //  west    -1 <-  0 -> +1    east
+    //              /  |  \
+    //          -9    -8    -7
+    //  soWe         sout         soEa
+    //
+    // --------------------------------
     case A1, B1, C1, D1, E1, F1, G1, H1
     case A2, B2, C2, D2, E2, F2, G2, H2
     case A3, B3, C3, D3, E3, F3, G3, H3
@@ -173,29 +211,29 @@ struct Board : CustomStringConvertible {
                 let sq = (63 - ((rankIndex * 8) + (7 - charIndex))) + space
                 switch(char) {
                 case "r":
-                    self.setPiece(Piece.BlackRook, square: Square(rawValue: sq)!)
+                    self.setPiece(.BlackRook, square: Square(rawValue: sq)!)
                 case "n":
-                    self.setPiece(Piece.BlackKnight, square: Square(rawValue: sq)!)
+                    self.setPiece(.BlackKnight, square: Square(rawValue: sq)!)
                 case "b":
-                    self.setPiece(Piece.BlackBishop, square: Square(rawValue: sq)!)
+                    self.setPiece(.BlackBishop, square: Square(rawValue: sq)!)
                 case "q":
-                    self.setPiece(Piece.BlackQueen, square: Square(rawValue: sq)!)
+                    self.setPiece(.BlackQueen, square: Square(rawValue: sq)!)
                 case "k":
-                    self.setPiece(Piece.BlackKing, square: Square(rawValue: sq)!)
+                    self.setPiece(.BlackKing, square: Square(rawValue: sq)!)
                 case "p":
-                    self.setPiece(Piece.BlackPawn, square: Square(rawValue: sq)!)
+                    self.setPiece(.BlackPawn, square: Square(rawValue: sq)!)
                 case "R":
-                    self.setPiece(Piece.WhiteRook, square: Square(rawValue: sq)!)
+                    self.setPiece(.WhiteRook, square: Square(rawValue: sq)!)
                 case "N":
-                    self.setPiece(Piece.WhiteKnight, square: Square(rawValue: sq)!)
+                    self.setPiece(.WhiteKnight, square: Square(rawValue: sq)!)
                 case "B":
-                    self.setPiece(Piece.WhiteBishop, square: Square(rawValue: sq)!)
+                    self.setPiece(.WhiteBishop, square: Square(rawValue: sq)!)
                 case "Q":
-                    self.setPiece(Piece.WhiteQueen, square: Square(rawValue: sq)!)
+                    self.setPiece(.WhiteQueen, square: Square(rawValue: sq)!)
                 case "K":
-                    self.setPiece(Piece.WhiteKing, square: Square(rawValue: sq)!)
+                    self.setPiece(.WhiteKing, square: Square(rawValue: sq)!)
                 case "P":
-                    self.setPiece(Piece.WhitePawn, square: Square(rawValue: sq)!)
+                    self.setPiece(.WhitePawn, square: Square(rawValue: sq)!)
                 case "1":
                     space += 0
                 case "2":
@@ -257,59 +295,59 @@ struct Board : CustomStringConvertible {
         return self
     }
     
-    var description:String {
+    subscript (square: Int) -> Piece {
         
-        var squares = [Character](count: 64, repeatedValue: " ")
-        var mask:BitBoard = 1
+        let mask:BitBoard = setBit(square)
         
-        for index in 0...63 {
-            if (mask & White.Pawns != 0) {
-                squares[index] = "P"
-            } else if (mask & White.Bishops != 0) {
-                squares[index] = "B"
-            } else if (mask & White.Rooks != 0) {
-                squares[index] = "R"
-            } else if (mask & White.Queens != 0) {
-                squares[index] = "Q"
-            } else if (mask & White.King != 0) {
-                squares[index] = "K"
-            } else if (mask & White.Knights != 0) {
-                squares[index] = "N"
-            } else if (mask & Black.Pawns != 0) {
-                squares[index] = "p"
-            } else if (mask & Black.Rooks != 0) {
-                squares[index] = "r"
-            } else if (mask & Black.Knights != 0) {
-                squares[index] = "n"
-            } else if (mask & Black.Bishops != 0) {
-                squares[index] = "b"
-            } else if (mask & Black.Queens != 0) {
-                squares[index] = "q"
-            } else if (mask & Black.King != 0) {
-                squares[index] = "k"
-            }
-            //Check next piece on bitboard
-            mask = mask << 1
+        if (mask & White.Pawns != 0) {
+            return .WhitePawn
+        } else if (mask & White.Bishops != 0) {
+            return .WhiteBishop
+        } else if (mask & White.Rooks != 0) {
+            return .WhiteRook
+        } else if (mask & White.Queens != 0) {
+            return .WhiteQueen
+        } else if (mask & White.King != 0) {
+            return .WhiteKing
+        } else if (mask & White.Knights != 0) {
+            return .WhiteKnight
+        } else if (mask & Black.Pawns != 0) {
+            return .BlackPawn
+        } else if (mask & Black.Rooks != 0) {
+            return .BlackRook
+        } else if (mask & Black.Knights != 0) {
+            return .BlackKnight
+        } else if (mask & Black.Bishops != 0) {
+            return .BlackBishop
+        } else if (mask & Black.Queens != 0) {
+            return .BlackQueen
+        } else if (mask & Black.King != 0) {
+            return .BlackKing
+        } else {
+            return .None
         }
+    }
+    
+    var description:String {
         
         var str = ""
         str += "   ________________________________\r"
-        str += "8 | \(squares[56]) | \(squares[57]) | \(squares[58]) | \(squares[59]) | \(squares[60]) | \(squares[61]) | \(squares[62]) | \(squares[63]) |\r"
-        str += "   ________________________________\r"
-        str += "7 | \(squares[48]) | \(squares[49]) | \(squares[50]) | \(squares[51]) | \(squares[52]) | \(squares[53]) | \(squares[54]) | \(squares[55]) |\r"
-        str += "   ________________________________\r"
-        str += "6 | \(squares[40]) | \(squares[41]) | \(squares[42]) | \(squares[43]) | \(squares[44]) | \(squares[45]) | \(squares[46]) | \(squares[47]) |\r"
-        str += "   ________________________________\r"
-        str += "5 | \(squares[32]) | \(squares[33]) | \(squares[34]) | \(squares[35]) | \(squares[36]) | \(squares[37]) | \(squares[38]) | \(squares[39]) |\r"
-        str += "   ________________________________\r"
-        str += "4 | \(squares[24]) | \(squares[25]) | \(squares[26]) | \(squares[27]) | \(squares[28]) | \(squares[29]) | \(squares[30]) | \(squares[31]) |\r"
-        str += "   ________________________________\r"
-        str += "3 | \(squares[16]) | \(squares[17]) | \(squares[18]) | \(squares[19]) | \(squares[20]) | \(squares[21]) | \(squares[22]) | \(squares[23]) |\r"
-        str += "   ________________________________\r"
-        str += "2 | \(squares[8]) | \(squares[9]) | \(squares[10]) | \(squares[11]) | \(squares[12]) | \(squares[13]) | \(squares[14]) | \(squares[15]) |\r"
-        str += "   ________________________________\r"
-        str += "1 | \(squares[0]) | \(squares[1]) | \(squares[2]) | \(squares[3]) | \(squares[4]) | \(squares[5]) | \(squares[6]) | \(squares[7]) |\r"
-        str += "   ________________________________\r"
+        for i in (1...8).reverse() {
+            let row = (
+                self[i * 8 - 8].rawValue,
+                self[i * 8 - 7].rawValue,
+                self[i * 8 - 6].rawValue,
+                self[i * 8 - 5].rawValue,
+                self[i * 8 - 4].rawValue,
+                self[i * 8 - 3].rawValue,
+                self[i * 8 - 2].rawValue,
+                self[i * 8 - 1].rawValue
+            )
+            str += "\(i) | \(row.0) | \(row.1) | \(row.2) | \(row.3) | \(row.4) | \(row.5) | \(row.6) | \(row.7) |\r"
+            
+            str += "   ________________________________\r"
+        }
+        
         str += "    a   b   c   d   e   f   g   h"
         
         return str
