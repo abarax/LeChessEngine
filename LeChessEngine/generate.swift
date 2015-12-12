@@ -85,7 +85,7 @@ func setBit(let index:Int) -> BitBoard {
 
 func popBit(board:BitBoard) -> (Int, BitBoard) {
     let bitIndex:Int = msb(board)
-    let bit:BitBoard = setBit(bitIndex)
+    let bit:BitBoard = setBit(bitIndex-1)
     let newBoard:BitBoard = (board & ~bit)
     return (bitIndex-1, newBoard)
 }
@@ -436,31 +436,29 @@ func generateKingMoves(color:Color, position:Board) -> [Move] {
     }
     
     var nextKing:BitBoard = kingBoard
-    while nextKing != 0 {
-        (kingIndex, nextKing) = popBit(nextKing)
-        var potentialKingMoves:BitBoard
-        var mask:BitBoard
+    (kingIndex, nextKing) = popBit(nextKing)
+    var potentialKingMoves:BitBoard
+    var mask:BitBoard
         
-        //Calculate our mask to filter out illegal moves when we shift the King Span
-        switch(kingIndex % 8) {
+    //Calculate our mask to filter out illegal moves when we shift the King Span
+    switch(kingIndex % 8) {
         case 1: mask = ~FILE_H
         case 8: mask = ~FILE_A
         default: mask = ALL_MASK
-        }
+    }
         
-        //Move the King SKing to the correct square
-        if kingIndex > Square.E5.rawValue {
-            potentialKingMoves = KING_SPAN << BitBoard(kingIndex - Square.E5.rawValue)
-        } else {
-            potentialKingMoves = KING_SPAN >> BitBoard(Square.E5.rawValue - kingIndex)
-        }
+    //Move the King Span to the correct square
+    if kingIndex > Square.E5.rawValue {
+        potentialKingMoves = KING_SPAN << BitBoard(kingIndex - Square.E5.rawValue)
+    } else {
+        potentialKingMoves = KING_SPAN >> BitBoard(Square.E5.rawValue - kingIndex)
+    }
         
-        potentialKingMoves = potentialKingMoves & mask & ~friendlyBoard & ~enemyKing
+    potentialKingMoves = potentialKingMoves & mask & ~friendlyBoard & ~enemyKing
         
-        while potentialKingMoves != 0 {
-            (kingMoveIndex, potentialKingMoves) = popBit(potentialKingMoves)
-            kingMoves.append(Move(from: Square(rawValue: kingIndex)!, to: Square(rawValue: kingMoveIndex)!))
-        }
+    while potentialKingMoves != 0 {
+        (kingMoveIndex, potentialKingMoves) = popBit(potentialKingMoves)
+        kingMoves.append(Move(from: Square(rawValue: kingIndex)!, to: Square(rawValue: kingMoveIndex)!))
     }
     return kingMoves
 

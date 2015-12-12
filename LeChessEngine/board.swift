@@ -10,7 +10,10 @@ import Foundation
 
 typealias BitBoard = UInt64
 
+let EmptyBoard:BitBoard = 0
+
 extension BitBoard {
+    
     func printBoard() {
         var bitMask:BitBoard = UInt64(1) << 63
         
@@ -69,19 +72,19 @@ struct CastleState {
 }
 
 enum Piece:Character {
-    case WhitePawn = "P"
-    case WhiteRook = "R"
+    case WhitePawn   = "P"
+    case WhiteRook   = "R"
     case WhiteKnight = "N"
     case WhiteBishop = "B"
-    case WhiteQueen = "Q"
-    case WhiteKing = "K"
-    case BlackPawn = "p"
-    case BlackRook = "r"
+    case WhiteQueen  = "Q"
+    case WhiteKing   = "K"
+    case BlackPawn   = "p"
+    case BlackRook   = "r"
     case BlackKnight = "n"
     case BlackBishop = "b"
-    case BlackQueen = "q"
-    case BlackKing = "k"
-    case None = " "
+    case BlackQueen  = "q"
+    case BlackKing   = "k"
+    case None        = " "
 }
 
 enum Square:Int {
@@ -210,29 +213,29 @@ struct Board : CustomStringConvertible {
                 //Calculate the square to place piece on
                 let sq = (63 - ((rankIndex * 8) + (7 - charIndex))) + space
                 switch(char) {
-                case "r":
+                case Piece.BlackRook.rawValue:
                     self.setPiece(.BlackRook, square: Square(rawValue: sq)!)
-                case "n":
+                case Piece.BlackKnight.rawValue:
                     self.setPiece(.BlackKnight, square: Square(rawValue: sq)!)
-                case "b":
+                case Piece.BlackBishop.rawValue:
                     self.setPiece(.BlackBishop, square: Square(rawValue: sq)!)
-                case "q":
+                case Piece.BlackQueen.rawValue:
                     self.setPiece(.BlackQueen, square: Square(rawValue: sq)!)
-                case "k":
+                case Piece.BlackKing.rawValue:
                     self.setPiece(.BlackKing, square: Square(rawValue: sq)!)
-                case "p":
+                case Piece.BlackPawn.rawValue:
                     self.setPiece(.BlackPawn, square: Square(rawValue: sq)!)
-                case "R":
+                case Piece.WhiteRook.rawValue:
                     self.setPiece(.WhiteRook, square: Square(rawValue: sq)!)
-                case "N":
+                case Piece.WhiteKnight.rawValue:
                     self.setPiece(.WhiteKnight, square: Square(rawValue: sq)!)
-                case "B":
+                case Piece.WhiteBishop.rawValue:
                     self.setPiece(.WhiteBishop, square: Square(rawValue: sq)!)
-                case "Q":
+                case Piece.WhiteQueen.rawValue:
                     self.setPiece(.WhiteQueen, square: Square(rawValue: sq)!)
-                case "K":
+                case Piece.WhiteKing.rawValue:
                     self.setPiece(.WhiteKing, square: Square(rawValue: sq)!)
-                case "P":
+                case Piece.WhitePawn.rawValue:
                     self.setPiece(.WhitePawn, square: Square(rawValue: sq)!)
                 case "1":
                     space += 0

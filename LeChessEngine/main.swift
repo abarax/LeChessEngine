@@ -10,34 +10,23 @@ import Foundation
 
 var board = Board()
 
-board.loadFenBoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+//board.loadFenBoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
-print(board)
+//print(board)
 
-board.clear()
+//board.clear()
 
 print("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
 board.loadFenBoardState("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
 
-//print(board)
+print(board)
 
-generateMoves(.White, position: board)
-generateMoves(.Black, position: board)
+//generateMoves(.White, position: board)
+//generateMoves(.Black, position: board)
 
-let a:BitBoard = 0b10000000000000000000111100000000
-
-a.printBoard()
-var NewBoard = Board()
-NewBoard.White.Pawns = a
-NewBoard.Black.Pawns = 0b0001000000100000000000000000
-
-print("TEST BOARD")
-print(NewBoard)
-
-generatePawnMoves(Color.White, position: NewBoard)
+generateKnightMoves(.White, position: board)
 
 
-
-
+isSquareAttacked(Square.A1, color: .White, position: board)
 
 
