@@ -24,9 +24,9 @@ print(board)
 //generateMoves(.White, position: board)
 //generateMoves(.Black, position: board)
 
-generateKnightMoves(.White, position: board)
+generateKnightMoves(color: .White, position: board)
 
 
-isSquareAttacked(Square.A1, color: .White, position: board)
+generateUnsafeBoard(color: .White, position: board)
 
 

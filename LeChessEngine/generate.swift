@@ -83,17 +83,17 @@ func setBit(let index:Int) -> BitBoard {
     return 1 << UInt64(index)
 }
 
-func popBit(board:BitBoard) -> (Int, BitBoard) {
+func popBit(inout board:BitBoard) -> Int {
     let bitIndex:Int = msb(board)
     let bit:BitBoard = setBit(bitIndex-1)
-    let newBoard:BitBoard = (board & ~bit)
-    return (bitIndex-1, newBoard)
+    board = (board & ~bit)
+    return bitIndex-1
 }
 
 func generateMoves(color:Color, position:Board) {
     generatePawnMoves(color, position: position)
     generateRookMoves(color, position: position)
-    generateKnightMoves(color, position: position)
+    generateKnightMoves(color: color, position: position)
     generateBishopMoves(color, position: position)
     generateQueenMoves(color, position: position)
     generateKingMoves(color, position: position)
@@ -109,28 +109,28 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
         //Move forward one square
         var moveOneForward:BitBoard = ((position.White.Pawns << 8) & position.OpenSquares) & ~RANK_8
         while moveOneForward != 0 {
-            (index, moveOneForward) = popBit(moveOneForward)
+            index = popBit(&moveOneForward)
             pawnMoves.append(Move(from: Square(rawValue: index - 8)!, to: Square(rawValue: index)!))
         }
         
         //Move forward two squares
         var moveTwoForward:BitBoard = ((((position.White.Pawns << 8) & position.OpenSquares) << 8) & position.OpenSquares) & RANK_4
         while moveTwoForward != 0 {
-            (index, moveTwoForward) = popBit(moveTwoForward)
+            index = popBit(&moveTwoForward)
             pawnMoves.append(Move(from: Square(rawValue: index - 16)!, to: Square(rawValue: index)!))
         }
         
         //Capture right
         var captureRight:BitBoard = (((position.White.Pawns << 7) & position.AllBlackPieces) & ~RANK_8) & ~FILE_A
         while captureRight != 0 {
-            (index, captureRight) = popBit(captureRight)
+            index = popBit(&captureRight)
             pawnMoves.append(Move(from: Square(rawValue: index - 9)!, to: Square(rawValue: index)!))
         }
         
         //Capture left
         var captureLeft:BitBoard = (((position.White.Pawns << 9) & position.AllBlackPieces) & ~RANK_8) & ~FILE_H
         while captureLeft != 0 {
-            (index, captureLeft) = popBit(captureLeft)
+            index = popBit(&captureLeft)
             pawnMoves.append(Move(from: Square(rawValue: index - 7)!, to: Square(rawValue: index)!))
         }
         
@@ -139,13 +139,13 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
             let enPassantBitBoard:BitBoard = setBit(position.EnPassantSquare.rawValue)
             
             //Left
-            let enPassantLeft:BitBoard = (position.White.Pawns << 9) & enPassantBitBoard
-            (index, _) = popBit(enPassantLeft)
+            var enPassantLeft:BitBoard = (position.White.Pawns << 9) & enPassantBitBoard
+            index = popBit(&enPassantLeft)
             pawnMoves.append(Move(from: Square(rawValue: index - 7)!, to: Square(rawValue: index)!))
             
             //Right
-            let enPassantRight:BitBoard = (position.White.Pawns << 7) & enPassantBitBoard
-            (index, _) = popBit(enPassantRight)
+            var enPassantRight:BitBoard = (position.White.Pawns << 7) & enPassantBitBoard
+            index = popBit(&enPassantRight)
             pawnMoves.append(Move(from: Square(rawValue: index - 9)!, to: Square(rawValue: index)!))
         }
         
@@ -153,7 +153,7 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
         
         var promoteOneForward:BitBoard = ((position.White.Pawns << 8) & position.OpenSquares) & RANK_8
         while promoteOneForward != 0 {
-            (index, promoteOneForward) = popBit(promoteOneForward)
+            index = popBit(&promoteOneForward)
             
             pawnMoves.append(Move(from: Square(rawValue: index - 8)!, to: Square(rawValue: index)!, promotion: Piece.BlackQueen))
             pawnMoves.append(Move(from: Square(rawValue: index - 8)!, to: Square(rawValue: index)!, promotion: Piece.BlackBishop))
@@ -163,7 +163,7 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
         
         var promoteCaptureRight:BitBoard = (((position.White.Pawns << 7) & position.AllBlackPieces) & RANK_8) & ~FILE_A
         while promoteCaptureRight != 0 {
-            (index, promoteCaptureRight) = popBit(promoteCaptureRight)
+            index = popBit(&promoteCaptureRight)
             pawnMoves.append(Move(from: Square(rawValue: index - 9)!, to: Square(rawValue: index)!, promotion: Piece.BlackQueen))
             pawnMoves.append(Move(from: Square(rawValue: index - 9)!, to: Square(rawValue: index)!, promotion: Piece.BlackBishop))
             pawnMoves.append(Move(from: Square(rawValue: index - 9)!, to: Square(rawValue: index)!, promotion: Piece.BlackKnight))
@@ -172,7 +172,7 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
         
         var promoteCaptureLeft:BitBoard = (((position.White.Pawns << 9) & position.AllBlackPieces) & RANK_8) & ~FILE_H
         while promoteCaptureLeft != 0 {
-            (index, promoteCaptureLeft) = popBit(promoteCaptureLeft)
+            index = popBit(&promoteCaptureLeft)
             pawnMoves.append(Move(from: Square(rawValue: index - 7)!, to: Square(rawValue: index)!, promotion: Piece.BlackQueen))
             pawnMoves.append(Move(from: Square(rawValue: index - 7)!, to: Square(rawValue: index)!, promotion: Piece.BlackBishop))
             pawnMoves.append(Move(from: Square(rawValue: index - 7)!, to: Square(rawValue: index)!, promotion: Piece.BlackKnight))
@@ -183,28 +183,28 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
         //Move forward one square
         var moveOneForward:BitBoard = ((position.Black.Pawns >> 8) & position.OpenSquares) & ~RANK_1
         while moveOneForward != 0 {
-            (index, moveOneForward) = popBit(moveOneForward)
+            index = popBit(&moveOneForward)
             pawnMoves.append(Move(from: Square(rawValue: index + 8)!, to: Square(rawValue: index)!))
         }
         
         //Move forward two squares
         var moveTwoForward:BitBoard = ((((position.Black.Pawns >> 8) & position.OpenSquares) >> 8) & position.OpenSquares) & RANK_5
         while moveTwoForward != 0 {
-            (index, moveTwoForward) = popBit(moveTwoForward)
+            index = popBit(&moveTwoForward)
             pawnMoves.append(Move(from: Square(rawValue: index + 16)!, to: Square(rawValue: index)!))
         }
         
         //Capture right
         var captureRight:BitBoard = (((position.Black.Pawns >> 7) & position.AllWhitePieces) & ~RANK_1) & ~FILE_H
         while captureRight != 0 {
-            (index, captureRight) = popBit(captureRight)
+            index = popBit(&captureRight)
             pawnMoves.append(Move(from: Square(rawValue: index + 9)!, to: Square(rawValue: index)!))
         }
         
         //Capture left
         var captureLeft:BitBoard = (((position.Black.Pawns >> 9) & position.AllWhitePieces) & ~RANK_1) & ~FILE_A
         while captureLeft != 0 {
-            (index, captureLeft) = popBit(captureLeft)
+            index = popBit(&captureLeft)
             pawnMoves.append(Move(from: Square(rawValue: index + 7)!, to: Square(rawValue: index)!))
         }
         
@@ -213,13 +213,13 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
             let enPassantBitBoard:BitBoard = setBit(position.EnPassantSquare.rawValue)
             
             //Left
-            let enPassantLeft:BitBoard = (position.Black.Pawns >> 9) & enPassantBitBoard
-            (index, _) = popBit(enPassantLeft)
+            var enPassantLeft:BitBoard = (position.Black.Pawns >> 9) & enPassantBitBoard
+            index = popBit(&enPassantLeft)
             pawnMoves.append(Move(from: Square(rawValue: index + 7)!, to: Square(rawValue: index)!))
             
             //Right
-            let enPassantRight:BitBoard = (position.Black.Pawns >> 7) & enPassantBitBoard
-            (index, _) = popBit(enPassantRight)
+            var enPassantRight:BitBoard = (position.Black.Pawns >> 7) & enPassantBitBoard
+            index = popBit(&enPassantRight)
             pawnMoves.append(Move(from: Square(rawValue: index + 9)!, to: Square(rawValue: index)!))
         }
         
@@ -227,7 +227,7 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
         
         var promoteOneForward:BitBoard = ((position.Black.Pawns >> 8) & position.OpenSquares) & RANK_1
         while promoteOneForward != 0 {
-            (index, promoteOneForward) = popBit(promoteOneForward)
+            index = popBit(&promoteOneForward)
             
             pawnMoves.append(Move(from: Square(rawValue: index + 8)!, to: Square(rawValue: index)!, promotion: Piece.WhiteQueen))
             pawnMoves.append(Move(from: Square(rawValue: index + 8)!, to: Square(rawValue: index)!, promotion: Piece.WhiteBishop))
@@ -237,7 +237,7 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
         
         var promoteCaptureRight:BitBoard = (((position.Black.Pawns >> 7) & position.AllWhitePieces) & RANK_1) & ~FILE_H
         while promoteCaptureRight != 0 {
-            (index, promoteCaptureRight) = popBit(promoteCaptureRight)
+            index = popBit(&promoteCaptureRight)
             pawnMoves.append(Move(from: Square(rawValue: index + 9)!, to: Square(rawValue: index)!, promotion: Piece.WhiteQueen))
             pawnMoves.append(Move(from: Square(rawValue: index + 9)!, to: Square(rawValue: index)!, promotion: Piece.WhiteBishop))
             pawnMoves.append(Move(from: Square(rawValue: index + 9)!, to: Square(rawValue: index)!, promotion: Piece.WhiteKnight))
@@ -246,7 +246,7 @@ func generatePawnMoves(color:Color, position:Board) -> [Move] {
         
         var promoteCaptureLeft:BitBoard = (((position.Black.Pawns >> 9) & position.AllWhitePieces) & RANK_1) & ~FILE_A
         while promoteCaptureLeft != 0 {
-            (index, promoteCaptureLeft) = popBit(promoteCaptureLeft)
+            index = popBit(&promoteCaptureLeft)
             pawnMoves.append(Move(from: Square(rawValue: index + 7)!, to: Square(rawValue: index)!, promotion: Piece.WhiteQueen))
             pawnMoves.append(Move(from: Square(rawValue: index + 7)!, to: Square(rawValue: index)!, promotion: Piece.WhiteBishop))
             pawnMoves.append(Move(from: Square(rawValue: index + 7)!, to: Square(rawValue: index)!, promotion: Piece.WhiteKnight))
@@ -298,11 +298,11 @@ func generateRookMoves(color:Color, position:Board) -> [Move] {
     }
     var nextRook:BitBoard = rookBoard
     while nextRook != 0 {
-        (rookIndex, nextRook) = popBit(nextRook)
+        rookIndex = popBit(&nextRook)
         var potentialRookMoves:BitBoard = generateSlidingHorizontalAndVertical(Square(rawValue: rookIndex)!, position: position)
             
         while potentialRookMoves != 0 {
-            (rookMoveIndex, potentialRookMoves) = popBit(potentialRookMoves)
+            rookMoveIndex = popBit(&potentialRookMoves)
             rookMoves.append(Move(from: Square(rawValue: rookIndex)!, to: Square(rawValue: rookMoveIndex)!))
         }
     }
@@ -324,11 +324,11 @@ func generateBishopMoves(color:Color, position:Board) -> [Move] {
     }
     var nextBishop:BitBoard = bishopBoard
     while nextBishop != 0 {
-        (bishopIndex, nextBishop) = popBit(nextBishop)
+        bishopIndex = popBit(&nextBishop)
         var potentialBishopMoves:BitBoard = generateSlidingDiagonals(Square(rawValue: bishopIndex)!, position: position)
             
         while potentialBishopMoves != 0 {
-            (bishopMoveIndex, potentialBishopMoves) = popBit(potentialBishopMoves)
+            bishopMoveIndex = popBit(&potentialBishopMoves)
             bishopMoves.append(Move(from: Square(rawValue: bishopIndex)!, to: Square(rawValue: bishopMoveIndex)!))
         }
     }
@@ -349,25 +349,25 @@ func generateQueenMoves(color:Color, position:Board) -> [Move] {
     }
     var nextQueen:BitBoard = queenBoard
     while nextQueen != 0 {
-        (queenIndex, nextQueen) = popBit(nextQueen)
+        queenIndex = popBit(&nextQueen)
         var potentialQueenMoves:BitBoard = generateSlidingHorizontalAndVertical(Square(rawValue: queenIndex)!, position: position)
         
         while potentialQueenMoves != 0 {
-            (queenMoveIndex, potentialQueenMoves) = popBit(potentialQueenMoves)
+            queenMoveIndex = popBit(&potentialQueenMoves)
             queenMoves.append(Move(from: Square(rawValue: queenIndex)!, to: Square(rawValue: queenMoveIndex)!))
         }
         
         potentialQueenMoves = generateSlidingDiagonals(Square(rawValue: queenIndex)!, position: position)
         
         while potentialQueenMoves != 0 {
-            (queenMoveIndex, potentialQueenMoves) = popBit(potentialQueenMoves)
+            queenMoveIndex = popBit(&potentialQueenMoves)
             queenMoves.append(Move(from: Square(rawValue: queenIndex)!, to: Square(rawValue: queenMoveIndex)!))
         }
     }
     return queenMoves
 }
 
-func generateKnightMoves(color:Color, position:Board) -> [Move] {
+func generateKnightMoves(color color:Color, position:Board) -> [Move] {
     var knightMoves:[Move] = []
     var knightIndex:Int
     var knightMoveIndex:Int
@@ -388,7 +388,7 @@ func generateKnightMoves(color:Color, position:Board) -> [Move] {
     
     var nextKnight:BitBoard = knightBoard
     while nextKnight != 0 {
-        (knightIndex, nextKnight) = popBit(nextKnight)
+        knightIndex = popBit(&nextKnight)
         var potentialKnightMoves:BitBoard
         var mask:BitBoard
         
@@ -409,7 +409,7 @@ func generateKnightMoves(color:Color, position:Board) -> [Move] {
         potentialKnightMoves = potentialKnightMoves & mask & ~friendlyBoard & ~enemyKing
         
         while potentialKnightMoves != 0 {
-            (knightMoveIndex, potentialKnightMoves) = popBit(potentialKnightMoves)
+            knightMoveIndex = popBit(&potentialKnightMoves)
             knightMoves.append(Move(from: Square(rawValue: knightIndex)!, to: Square(rawValue: knightMoveIndex)!))
         }
     }
@@ -436,7 +436,7 @@ func generateKingMoves(color:Color, position:Board) -> [Move] {
     }
     
     var nextKing:BitBoard = kingBoard
-    (kingIndex, nextKing) = popBit(nextKing)
+    kingIndex = popBit(&nextKing)
     var potentialKingMoves:BitBoard
     var mask:BitBoard
         
@@ -457,7 +457,7 @@ func generateKingMoves(color:Color, position:Board) -> [Move] {
     potentialKingMoves = potentialKingMoves & mask & ~friendlyBoard & ~enemyKing
         
     while potentialKingMoves != 0 {
-        (kingMoveIndex, potentialKingMoves) = popBit(potentialKingMoves)
+        kingMoveIndex = popBit(&potentialKingMoves)
         kingMoves.append(Move(from: Square(rawValue: kingIndex)!, to: Square(rawValue: kingMoveIndex)!))
     }
     return kingMoves

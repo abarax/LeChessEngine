@@ -8,7 +8,7 @@
 
 import Foundation
 
-func isSquareAttacked(square:Square, color:Color, position:Board) -> Bool {
+func generateUnsafeBoard(color color:Color, position:Board) -> BitBoard {
     var unsafe:BitBoard = EmptyBoard
     
     let pieces = color == .White ? position.Black : position.White
@@ -27,7 +27,7 @@ func isSquareAttacked(square:Square, color:Color, position:Board) -> Bool {
     var nextRookOrQueen:BitBoard = pieces.Rooks | pieces.Queens
     var rookIndex:Int
     while nextRookOrQueen != 0 {
-        (rookIndex, nextRookOrQueen) = popBit(nextRookOrQueen)
+        rookIndex = popBit(&nextRookOrQueen)
         unsafe |= generateSlidingHorizontalAndVertical(Square(rawValue: rookIndex)!, position: position)
     }
     
@@ -35,7 +35,7 @@ func isSquareAttacked(square:Square, color:Color, position:Board) -> Bool {
     var nextKnight:BitBoard = pieces.Knights
     var knightIndex:Int
     while nextKnight != 0 {
-        (knightIndex, nextKnight) = popBit(nextKnight)
+        knightIndex = popBit(&nextKnight)
         var potentialKnightMoves:BitBoard
         var mask:BitBoard
         
@@ -61,7 +61,7 @@ func isSquareAttacked(square:Square, color:Color, position:Board) -> Bool {
     var nextBishopOrQueen:BitBoard = pieces.Bishops | pieces.Queens
     var bishopOrQueenIndex:Int
     while nextBishopOrQueen != 0 {
-        (bishopOrQueenIndex, nextBishopOrQueen) = popBit(nextBishopOrQueen)
+        bishopOrQueenIndex = popBit(&nextBishopOrQueen)
         unsafe |= generateSlidingDiagonals(Square(rawValue: bishopOrQueenIndex)!, position: position)
     }
     
@@ -69,7 +69,7 @@ func isSquareAttacked(square:Square, color:Color, position:Board) -> Bool {
     
     var nextKing:BitBoard = pieces.King
     var kingIndex:Int
-    (kingIndex, nextKing) = popBit(nextKing)
+    kingIndex = popBit(&nextKing)
     var potentialKingMoves:BitBoard
     var mask:BitBoard
     
@@ -90,5 +90,5 @@ func isSquareAttacked(square:Square, color:Color, position:Board) -> Bool {
     unsafe |= potentialKingMoves & mask
 
     
-    return true
+    return unsafe
 }
