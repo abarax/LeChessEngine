@@ -92,13 +92,13 @@ enum Square:Int {
     // Little Endian Rank File Mapping
     // --------------------------------
     //
-    //  noWe         nort         noEa
+    //  noWe         north        noEa
     //          +7    +8    +9
     //              \  |  /
     //  west    -1 <-  0 -> +1    east
     //              /  |  \
     //          -9    -8    -7
-    //  soWe         sout         soEa
+    //  soWe         south        soEa
     //
     // --------------------------------
     case A1, B1, C1, D1, E1, F1, G1, H1
@@ -126,6 +126,14 @@ enum Square:Int {
     var Rank:Int {
         return self.rawValue / 8
     }
+    
+    var bitBoard:BitBoard {
+        return setBit(self.rawValue)
+    }
+}
+
+func squareToBitBoard(square: Square) -> BitBoard {
+    return setBit(square.rawValue)
 }
 
 struct PieceState {
@@ -156,7 +164,7 @@ struct Board : CustomStringConvertible {
     var OccupiedSquares:BitBoard {
         return AllWhitePieces | AllBlackPieces
     }
-    var OpenSquares:BitBoard {
+    var UnoccupiedSquares:BitBoard {
         return ~OccupiedSquares
     }
     
@@ -196,7 +204,19 @@ struct Board : CustomStringConvertible {
             Black.Queens |= pieceMask
         case .BlackKing:
             Black.King |= pieceMask
-        default: break
+        case .None:
+            White.Pawns   &= ~pieceMask
+            White.Rooks   &= ~pieceMask
+            White.Knights &= ~pieceMask
+            White.Bishops &= ~pieceMask
+            White.Queens  &= ~pieceMask
+            White.King    &= ~pieceMask
+            Black.Pawns   &= ~pieceMask
+            Black.Rooks   &= ~pieceMask
+            Black.Knights &= ~pieceMask
+            Black.Bishops &= ~pieceMask
+            Black.Queens  &= ~pieceMask
+            Black.King    &= ~pieceMask
         }
         
         return self
