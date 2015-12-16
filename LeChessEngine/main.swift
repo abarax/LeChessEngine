@@ -10,23 +10,16 @@ import Foundation
 
 var board = Board()
 
-//board.loadFenBoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+board.loadFenBoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
 //print(board)
 
 //board.clear()
 
-print("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
-board.loadFenBoardState("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
+//board.loadFenBoardState("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
 
 print(board)
 
-//generateMoves(.White, position: board)
-//generateMoves(.Black, position: board)
-
-generateKnightMoves(color: .White, position: board)
-
-
-generateUnsafeBoard(color: .White, position: board)
+var moves = generateMoves(.Black, position: board)
 
 
