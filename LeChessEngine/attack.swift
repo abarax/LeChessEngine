@@ -8,6 +8,11 @@
 
 import Foundation
 
+func isSquareAttacked(square square:Square, color:Color, position:Board) -> Bool {
+    let unsafeBoard = generateUnsafeBoard(color: color, position: board)
+    return square.bitBoard & unsafeBoard == 1
+}
+
 func generateUnsafeBoard(color color:Color, position:Board) -> BitBoard {
     var unsafe:BitBoard = EmptyBoard
     
