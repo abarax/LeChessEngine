@@ -8,18 +8,12 @@
 
 import Foundation
 
-var board = Board()
+runPerftTest()
 
-board.loadFenBoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-
+//var board = Board()
+//
+//board.loadFenBoardState("k7/8/7P/8/8/8/6p1/K7 w - - 0 1")
 //print(board)
-
-//board.clear()
-
-//board.loadFenBoardState("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
-
-print(board)
-
-var moves = generateMoves(.Black, position: board)
+//print(divide(board, depth: 1))
 
 

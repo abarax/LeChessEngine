@@ -120,11 +120,11 @@ enum Square:Int {
     }
     
     var File:Int {
-        return self.rawValue % 64
+        return self.rawValue % 8 + 1
     }
     
     var Rank:Int {
-        return self.rawValue / 8
+        return self.rawValue / 8 + 1
     }
     
     var bitBoard:BitBoard {
@@ -154,7 +154,6 @@ struct Board : CustomStringConvertible {
     var EnPassantSquare:Square = Square.None
     var PliesSinceLastPawnAdvanceOrCapture:Int = 0
     var MoveCount:Int = 0
-    var LastMove:Move = Move(from: Square.None, to: Square.None)
     var AllWhitePieces:BitBoard {
         return White.King | White.Queens | White.Rooks | White.Bishops | White.Knights | White.Pawns
     }
@@ -167,6 +166,9 @@ struct Board : CustomStringConvertible {
     var UnoccupiedSquares:BitBoard {
         return ~OccupiedSquares
     }
+    var CanCastle:(white: CastleState, black: CastleState) {
+        return (White.CanCastle, Black.CanCastle)
+    }
     
     mutating func clear() -> Board {
         self = Board()
@@ -178,6 +180,19 @@ struct Board : CustomStringConvertible {
         //Shift by rank and file so our bit is set in correct position
         
         let pieceMask:BitBoard = (1 << UInt64(square.rawValue))
+        
+        White.Pawns   &= ~pieceMask
+        White.Rooks   &= ~pieceMask
+        White.Knights &= ~pieceMask
+        White.Bishops &= ~pieceMask
+        White.Queens  &= ~pieceMask
+        White.King    &= ~pieceMask
+        Black.Pawns   &= ~pieceMask
+        Black.Rooks   &= ~pieceMask
+        Black.Knights &= ~pieceMask
+        Black.Bishops &= ~pieceMask
+        Black.Queens  &= ~pieceMask
+        Black.King    &= ~pieceMask
         
         switch piece {
         case .WhitePawn:
@@ -205,18 +220,7 @@ struct Board : CustomStringConvertible {
         case .BlackKing:
             Black.King |= pieceMask
         case .None:
-            White.Pawns   &= ~pieceMask
-            White.Rooks   &= ~pieceMask
-            White.Knights &= ~pieceMask
-            White.Bishops &= ~pieceMask
-            White.Queens  &= ~pieceMask
-            White.King    &= ~pieceMask
-            Black.Pawns   &= ~pieceMask
-            Black.Rooks   &= ~pieceMask
-            Black.Knights &= ~pieceMask
-            Black.Bishops &= ~pieceMask
-            Black.Queens  &= ~pieceMask
-            Black.King    &= ~pieceMask
+            return self
         }
         
         return self
@@ -293,18 +297,10 @@ struct Board : CustomStringConvertible {
         self.Black.CanCastle = CastleState(KingSide: false, QueenSide: false)
         
         let castle = otherBoardDetails.next()!
-        switch(castle) {
-        case "K":
-            self.White.CanCastle.KingSide = true
-        case "Q":
-            self.White.CanCastle.QueenSide = true
-        case "k":
-            self.Black.CanCastle.KingSide = true
-        case "q":
-            self.Black.CanCastle.QueenSide = true
-        default:
-            break
-        }
+        if castle.contains("K") { self.White.CanCastle.KingSide = true }
+        if castle.contains("Q") { self.White.CanCastle.QueenSide = true }
+        if castle.contains("k") { self.Black.CanCastle.KingSide = true }
+        if castle.contains("q") { self.Black.CanCastle.QueenSide = true }
         
         let enPassant = otherBoardDetails.next()!
         if enPassant != "-" {
@@ -316,6 +312,20 @@ struct Board : CustomStringConvertible {
         self.MoveCount = Int(otherBoardDetails.next()!)!
         
         return self
+    }
+    
+    func isLegal() -> Bool {
+        switch Turn {
+        case .White:
+            if self.Black.King & generateUnsafeBoard(color: .Black, position: self) != 0 {
+                return false
+            }
+        case .Black:
+            if self.White.King & generateUnsafeBoard(color: .White, position: self) != 0 {
+                return false
+            }
+        }
+        return true
     }
     
     subscript (square: Int) -> Piece {
@@ -371,7 +381,13 @@ struct Board : CustomStringConvertible {
             str += "   ________________________________\r"
         }
         
-        str += "    a   b   c   d   e   f   g   h"
+        str += "    a   b   c   d   e   f   g   h\r"
+        
+        str += " Turn: \(Turn)\r"
+        str += " Move Number: \(MoveCount)\r"
+        str += " En Passant Square: \(EnPassantSquare)\r"
+        str += " Black Castle State: \(Black.CanCastle)\r"
+        str += " White Castle State: \(White.CanCastle)\r"
         
         return str
     }

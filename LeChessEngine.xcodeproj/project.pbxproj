@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		866EEFD81C20201900E13B48 /* move.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866EEFD71C20201900E13B48 /* move.swift */; };
+		866EEFDA1C22421B00E13B48 /* perft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866EEFD91C22421B00E13B48 /* perft.swift */; };
 		868BD9A71C0FB054004D4650 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 868BD9A61C0FB054004D4650 /* main.swift */; };
 		868BD9AE1C125847004D4650 /* board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 868BD9AD1C125847004D4650 /* board.swift */; };
 		868BD9B01C125880004D4650 /* string.swift in Sources */ = {isa = PBXBuildFile; fileRef = 868BD9AF1C125880004D4650 /* string.swift */; };
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		866EEFD71C20201900E13B48 /* move.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = move.swift; sourceTree = "<group>"; };
+		866EEFD91C22421B00E13B48 /* perft.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = perft.swift; sourceTree = "<group>"; };
 		868BD9A31C0FB054004D4650 /* LeChessEngine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LeChessEngine; sourceTree = BUILT_PRODUCTS_DIR; };
 		868BD9A61C0FB054004D4650 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		868BD9AD1C125847004D4650 /* board.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = board.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -70,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				868BD9A61C0FB054004D4650 /* main.swift */,
+				866EEFD91C22421B00E13B48 /* perft.swift */,
 				868BD9AD1C125847004D4650 /* board.swift */,
 				868BD9AF1C125880004D4650 /* string.swift */,
 				868BD9B11C125BD4004D4650 /* generate.swift */,
@@ -144,6 +147,7 @@
 				868BD9B41C1BFAB2004D4650 /* attack.swift in Sources */,
 				868BD9A71C0FB054004D4650 /* main.swift in Sources */,
 				868BD9B61C1CF9EA004D4650 /* constants.swift in Sources */,
+				866EEFDA1C22421B00E13B48 /* perft.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,7 +9,7 @@
 import Foundation
 
 func isSquareAttacked(square square:Square, color:Color, position:Board) -> Bool {
-    let unsafeBoard = generateUnsafeBoard(color: color, position: board)
+    let unsafeBoard = generateUnsafeBoard(color: color, position: position)
     return square.bitBoard & unsafeBoard == 1
 }
 
@@ -45,7 +45,7 @@ func generateUnsafeBoard(color color:Color, position:Board) -> BitBoard {
         var mask:BitBoard
         
         //Calculate our mask to filter out illegal moves when we shift the Knight Span
-        switch(knightIndex % 8) {
+        switch(knightIndex % 8 + 1) {
         case 1...2: mask = ~(FILE_G | FILE_H)
         case 7...8: mask = ~(FILE_A | FILE_B)
         default: mask = ALL_MASK
@@ -79,7 +79,7 @@ func generateUnsafeBoard(color color:Color, position:Board) -> BitBoard {
     var mask:BitBoard
     
     //Calculate our mask to filter out illegal moves when we shift the King Span
-    switch(kingIndex % 8) {
+    switch(kingIndex % 8 + 1) {
     case 1: mask = ~FILE_H
     case 8: mask = ~FILE_A
     default: mask = ALL_MASK
