@@ -169,3 +169,16 @@ func undoMove(inout board:Board, undo:Undo) {
     }
     
 }
+
+func parseMove(move:String) -> Move {
+    if move.length == 5 {
+        return Move(
+            from:Square(rankAndFile: move[0...2]),
+            to: Square(rankAndFile: move[2...4]),
+            promotion: Piece(rawValue: move[4])!)
+    } else {
+        return Move(
+            from:Square(rankAndFile: move[0...2]),
+            to: Square(rankAndFile: move[2...4]))
+    }
+}

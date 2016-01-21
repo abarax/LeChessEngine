@@ -61,3 +61,6 @@ let AntiDiagonalMasks:[BitBoard] = [
     0x804020100000000, 0x402010000000000, 0x201000000000000, 0x100000000000000
 ]
 
+//PERFT Representation of a new game
+let NewGame = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
