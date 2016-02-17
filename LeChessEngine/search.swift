@@ -8,50 +8,98 @@
 
 import Foundation
 
-func AlphaBeta(var board:Board, depth:Int, var alpha:Int, beta:Int) -> Int {
-    
-    if !board.isLegal() { return 0 }
+struct ScoredMove {
+    let score:Int
+    let move:Move
+}
+
+var principle_variations:[Int:ScoredMove] = [:]
+
+func get_principle_line(board:Board, depth:Int) -> [ScoredMove] {
+    var boardCopy = board
+    var line = [ScoredMove]()
+    for _ in 1...depth {
+        if let pv = principle_variations[boardCopy.hashValue] {
+            line.append(pv)
+            doMove(&boardCopy, move: pv.move)
+        }
+       
         
-    if depth == 0 { return evaluate(board) }
+    }
+    
+    return line
+}
+
+func Search(let board:Board) -> ScoredMove {
+
+    var bestMove:ScoredMove = ScoredMove(score: Int.min + 1, move: Move())
+    let SEARCH_DEPTH = 4
+    
+    for depth in 1...SEARCH_DEPTH {
+        -AlphaBeta(board, depth: depth, alpha: Int.min + 1, beta: Int.max)
+        //Check Time - can we go deeper?
+        let pvMoves = get_principle_line(board, depth: depth);
+        bestMove = pvMoves[0]
+        
+        print("Depth:\(depth) score:\(bestMove.score) move:\(bestMove.move)")
+        for (index, pvMove) in pvMoves.enumerate() {
+            print("\(index): \(pvMove.move.from) \(pvMove.move.to)")
+        }
+        print("-------------------------------------------")
+    }
+    
+    return bestMove
+}
+
+func Quiescence(var board:Board, var alpha:Int, beta:Int) -> Int {
+    return 0
+}
+
+func AlphaBeta(var board:Board, depth:Int, var alpha:Int, beta:Int) -> Int {
+
+    if depth == 0 { return Evaluate(board) }
     
     let moves = generateMoves(board)
+    
+    var legalMoveCount = 0
+    var bestMove = ScoredMove(score: 0, move: Move())
+    let oldAlpha = alpha
     
     for move in moves {
         
         let undo = doMove(&board, move: move)
         
-        let val = -AlphaBeta(board, depth: depth - 1, alpha: -beta, beta: -alpha)
+        if !board.isLegal() {
+            undoMove(&board, undo: undo)
+            continue
+        }
+        
+        legalMoveCount++
+
+        let score = -AlphaBeta(board, depth: depth - 1, alpha: -beta, beta: -alpha)
         
         undoMove(&board, undo: undo)
         
-        if (val >= beta) { return beta }
+        if (score >= beta) { return beta }
         
-        if (val > alpha) { alpha = val }
+        if (score > alpha) {
+            alpha = score
+            bestMove = ScoredMove(score: score, move: move)
+        }
         
     }
     
+    if legalMoveCount == 0 {
+        if (board.isChecked()) {
+            return -CHECKMATE
+        } else {
+            return 0
+        }
+    }
+    
+    if alpha != oldAlpha {
+        principle_variations[board.hashValue] = bestMove
+    }
     return alpha
     
-}
-
-
-func evaluate(board:Board) -> Int {
-    
-    // Pure Material evaluation for now
-    let Whitepawns = msb(board.White.Pawns);
-    let Whiteknights = msb(board.White.Knights);
-    let Whitebishops = msb(board.White.Bishops);
-    let Whiterooks = msb(board.White.Rooks);
-    let Whitequeens = msb(board.White.Queens);
-    let Whitetotalmat = 3 * Whiteknights + 3 * Whitebishops + 5 * Whiterooks + 10 * Whitequeens;
-    let Whitetotal = Whitepawns + Whiteknights + Whitebishops + Whiterooks + Whitequeens;
-    let blackpawns = msb(board.Black.Pawns);
-    let blackknights = msb(board.Black.Knights);
-    let blackbishops = msb(board.Black.Bishops);
-    let blackrooks = msb(board.Black.Rooks);
-    let blackqueens = msb(board.Black.Queens);
-    let blacktotalmat = 3 * blackknights + 3 * blackbishops + 5 * blackrooks + 10 * blackqueens;
-    let blacktotal = blackpawns + blackknights + blackbishops + blackrooks + blackqueens;
-    
-    return (Whitetotalmat + Whitetotal) - (blacktotalmat + blacktotal)
 }

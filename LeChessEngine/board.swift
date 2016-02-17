@@ -144,10 +144,29 @@ struct PieceState {
     var Queens:BitBoard = 0
     var King:BitBoard = 0
     var CanCastle:CastleState = CastleState()
+    
+    init() {
+        
+    }
+    
+    init (pawns:BitBoard,
+          rooks:BitBoard,
+          knights: BitBoard,
+          bishops:BitBoard,
+          queens:BitBoard,
+          king:BitBoard) {
+        self.Pawns = pawns
+        self.Rooks = rooks
+        self.Knights = knights
+        self.Bishops = bishops
+        self.Queens = queens
+        self.King = king
+    }
 }
 
-struct Board : CustomStringConvertible {
+struct Board : CustomStringConvertible, Hashable {
     
+    let ZobristBoard = Zobrist()
     var Turn:Color = .White
     var White:PieceState = PieceState()
     var Black:PieceState = PieceState()
@@ -314,6 +333,20 @@ struct Board : CustomStringConvertible {
         return self
     }
     
+    func isChecked() -> Bool {
+        switch Turn {
+        case .White:
+            if self.White.King & generateUnsafeBoard(color: .White, position: self) != 0 {
+                return true
+            }
+        case .Black:
+            if self.Black.King & generateUnsafeBoard(color: .Black, position: self) != 0 {
+                return true
+            }
+        }
+        return false
+    }
+    
     func isLegal() -> Bool {
         switch Turn {
         case .White:
@@ -388,7 +421,137 @@ struct Board : CustomStringConvertible {
         str += " En Passant Square: \(EnPassantSquare)\r"
         str += " Black Castle State: \(Black.CanCastle)\r"
         str += " White Castle State: \(White.CanCastle)\r"
+        str += " Zobrist Key: \(hashValue)\r"
         
         return str
     }
+    
+    var hashValue : Int {
+        // Need to convert from unsigned to signed here for hashable protocol
+        return Int(Int64(bitPattern: ZobristBoard.getHashKeyForBoard(self)))
+    }
+}
+
+func ==(lhs: Board, rhs: Board) -> Bool {
+    return lhs.Black == rhs.Black && lhs.White == rhs.White
+}
+
+func ==(lhs: PieceState, rhs: PieceState) -> Bool {
+    return  lhs.Pawns   == rhs.Bishops &&
+            lhs.Rooks   == rhs.Rooks   &&
+            lhs.Bishops == rhs.Bishops &&
+            lhs.Knights == rhs.Knights &&
+            lhs.Queens  == rhs.Queens  &&
+            lhs.King    == rhs.King
+}
+
+struct ZobristSquare {
+    let Black:PieceState
+    let White:PieceState
+}
+
+struct Zobrist {
+    var Squares = [ZobristSquare?](count: 64, repeatedValue: nil)
+    let Black = random64()
+    let BlackCanCastleQueen = random64()
+    let BlackCanCastleKing = random64()
+    let WhiteCanCastleQueen = random64()
+    let WhiteCanCastleKing = random64()
+    let EnPassantFiles = [random64(), random64(), random64(), random64(), random64(), random64(), random64(), random64()]
+    
+    init() {
+        for i in 0...63 {
+            Squares[i] =
+                ZobristSquare(
+                    Black: PieceState(pawns: random64(), rooks: random64(), knights: random64(), bishops: random64(), queens: random64(), king: random64()),
+                    White: PieceState(pawns: random64(), rooks: random64(), knights: random64(), bishops: random64(), queens: random64(), king: random64()))
+        }
+    }
+    
+    subscript (key: (square: Int, piece:Piece)) -> UInt64 {
+        switch key.piece {
+        case .WhitePawn:
+            return Squares[key.square]!.White.Pawns
+        case .WhiteRook:
+            return Squares[key.square]!.White.Rooks
+        case .WhiteKnight:
+            return Squares[key.square]!.White.Knights
+        case .WhiteBishop:
+            return Squares[key.square]!.White.Bishops
+        case .WhiteQueen:
+            return Squares[key.square]!.White.Queens
+        case .WhiteKing:
+            return Squares[key.square]!.White.King
+        case .BlackPawn:
+            return Squares[key.square]!.Black.Pawns
+        case .BlackRook:
+            return Squares[key.square]!.Black.Rooks
+        case .BlackKnight:
+            return Squares[key.square]!.Black.Knights
+        case .BlackBishop:
+            return Squares[key.square]!.Black.Bishops
+        case .BlackQueen:
+            return Squares[key.square]!.Black.Queens
+        case .BlackKing:
+            return Squares[key.square]!.Black.King
+        case .None:
+            return 0
+        }
+        
+    }
+    
+    func getHashKeyForBoard(board:Board) -> UInt64 {
+        var returnVal:UInt64 = 0
+        for i in 0...63 {
+            let piece = board[i]
+            if piece != Piece.None {
+                returnVal ^= self[(i, piece)]
+            }
+        }
+        
+        if board.Turn == .Black {
+            returnVal ^= Black
+        }
+        
+        if board.White.CanCastle.KingSide {
+            returnVal ^= WhiteCanCastleKing
+        }
+        
+        if board.White.CanCastle.QueenSide {
+            returnVal ^= WhiteCanCastleQueen
+        }
+        
+        if board.Black.CanCastle.KingSide {
+            returnVal ^= BlackCanCastleKing
+        }
+        
+        if board.Black.CanCastle.QueenSide {
+            returnVal ^= BlackCanCastleQueen
+        }
+        
+        if board.EnPassantSquare != .None {
+            returnVal ^= EnPassantFiles[board.EnPassantSquare.File - 1]
+        }
+        
+        return returnVal
+        
+    }
+
+}
+
+func random64() -> UInt64 {
+    return random64(UInt64.max)
+}
+
+func random64(upper_bound: UInt64) -> UInt64 {
+    
+    // Generate 64-bit random value in a range that is
+    // divisible by upper_bound:
+    let range = UInt64.max - UInt64.max % upper_bound
+    var rnd : UInt64 = 0
+    repeat {
+        arc4random_buf(&rnd, sizeofValue(rnd))
+    } while rnd >= range
+    
+    return rnd % upper_bound
 }

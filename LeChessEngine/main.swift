@@ -28,6 +28,9 @@ while running {
             case "new":
                 board.loadFenBoardState(NewGame)
                 print(board)
+            case "load":
+                board.loadFenBoardState("2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - - 0 1")
+                print(board)
             case "print":
                 print(board)
             case "undo":
@@ -38,14 +41,27 @@ while running {
                     print("No move has been made yet")
                 }
             case "search":
-                let val = AlphaBeta(board, depth: 5, alpha: Int.min, beta: Int.max)
+                let val = Search(board)
                 print(val)
+            case "test":
+                var list = SkipList<Int>()
+                
+                list.add(7)
+                list.add(12)
+                list.add(3)
+                list.add(7)
+                list.add(123)
+                list.add(4234)
+                list.add(234)
+                list.add(23423)
+                print(list)
+                print(list.size)
             case "":
                 break
             default:
                 //Default Case
                 //Check format to see if its a move
-                if response.rangeOfString("[a-g][1-8][a-g][1-8][q,k,b,r]?", options: .RegularExpressionSearch) != nil {
+                if response.rangeOfString("[a-h][1-8][a-h][1-8][q,k,b,r]?", options: .RegularExpressionSearch) != nil {
                     let move = parseMove(response)
                     let moves = generateMoves(board)
                     if moves.contains(

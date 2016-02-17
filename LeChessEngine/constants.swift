@@ -8,6 +8,9 @@
 
 import Foundation
 
+let INFINITY = Int.max
+let CHECKMATE = 100000
+
 let RANK_1:BitBoard = 0x00000000000000ff
 let RANK_2:BitBoard = 0x000000000000ff00
 let RANK_3:BitBoard = 0x0000000000ff0000
