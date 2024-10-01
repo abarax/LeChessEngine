@@ -8,13 +8,21 @@
 
 import Foundation
 
+
+func initializeEngine() {
+    initCaptureScores()
+}
+
 var running = true
 var board:Board = Board()
+var search:SearchInfo = SearchInfo()
 var undo:Undo?
 
 print("------------------------")
 print("Welcome to LeChessEngine")
 print("------------------------\n")
+
+initializeEngine()
 
 while running {
     print("\n > ", terminator: "")
@@ -29,7 +37,8 @@ while running {
                 board.loadFenBoardState(NewGame)
                 print(board)
             case "load":
-                board.loadFenBoardState("2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - - 0 1")
+                //board.loadFenBoardState("2rr3k/pp3pp1/1nnqbN1p/3pN3/2pP4/2P3Q1/PPB4P/R4RK1 w - - 0 1")
+                board.loadFenBoardState("3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - - 0 1")
                 print(board)
             case "print":
                 print(board)
@@ -46,14 +55,14 @@ while running {
             case "test":
                 var list = SkipList<Int>()
                 
-                list.add(7)
-                list.add(12)
-                list.add(3)
-                list.add(7)
-                list.add(123)
-                list.add(4234)
-                list.add(234)
-                list.add(23423)
+                list.append(7)
+                list.append(12)
+                list.append(3)
+                list.append(7)
+                list.append(123)
+                list.append(4234)
+                list.append(234)
+                list.append(23423)
                 print(list)
                 print(list.size)
             case "":
@@ -79,6 +88,7 @@ while running {
     }
 
 }
+
 
 //var board = Board()
 //

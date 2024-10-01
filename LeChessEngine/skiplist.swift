@@ -32,7 +32,7 @@ struct SkipList<T:Comparable> {
         levels = 1
     }
     
-    mutating func add(value:T) {
+    mutating func append(value:T) {
         
         var level:Int = 0
         var randomNum = random()
@@ -98,9 +98,9 @@ struct SkipList<T:Comparable> {
         return found
     }
     
-    mutating func addContentsOf(list: SkipList<T>) -> SkipList<T> {
+    mutating func appendContentsOf(list: SkipList<T>) -> SkipList<T> {
         for entry in list {
-            self.add(entry)
+            self.append(entry)
         }
         return self
     }

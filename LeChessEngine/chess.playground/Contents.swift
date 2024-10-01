@@ -2,36 +2,27 @@
 
 import Cocoa
 
-let num = 32424234
 
-num ^ 0
+struct Move {
+    var name:String = "asdf"
+    var score:Int = 0
+}
 
-let delta: UInt64 = 9307608754918809270
-let result: Int64 = Int64(bitPattern: delta)
+func add(m:Move,var list:[Move]) {
+    list.append(m)
+}
 
-let r:Int = Int(result)
+var moves:[Move] = [Move(name: "ewoij", score: 324), Move(name: "awkler", score: 1323)]
 
+for (i, move) in moves.enumerate() {
+    if move.name == "ewoij" {
+        moves[i].score = 22222222
+    }
+}
 
-print(String(0x0101010101010101, radix:2 ))
-               
-print(String(0b11001100110011001100110011001100110011001100110011001100110011, radix: 16))
+add(Move(name: "test", score: 2), list: moves)
 
-
-var i:UInt64 = 1024
-i = i - ((i >> 1) & 0x5555555555555555)
-i = (i & 0x3333333333333333) + ((i >> 2) & 0x3333333333333333)
-
-i = ((i + (i >> UInt64(4))) & 0x0F0F0F0F0F0F0F0F) * 0x0101010101010101
-
-
-i = (((i + (i >> UInt64(4))) & 0x0F0F0F0F0F0F0F0F) * 0x0101010101010101) >> UInt64(24)
-
-var out = Int(
-    Int64(
-        bitPattern: i
-        
-    )
-)
+print(moves)
 
 
 

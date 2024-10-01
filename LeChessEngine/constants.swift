@@ -67,3 +67,34 @@ let AntiDiagonalMasks:[BitBoard] = [
 //PERFT Representation of a new game
 let NewGame = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
+
+var CAPTURE_SCORE: [Piece:[Piece:Int]] = [:]
+let PIECE_CAPTURE_SCORES:[Piece:Int] = [
+    .WhitePawn:     100,
+    .WhiteKnight:   200,
+    .WhiteBishop:   300,
+    .WhiteRook:     400,
+    .WhiteQueen:    500,
+    .WhiteKing:     600,
+    .BlackPawn:     100,
+    .BlackKnight:   200,
+    .BlackBishop:   300,
+    .BlackRook:     400,
+    .BlackQueen:    500,
+    .BlackKing:     600
+]
+
+//PIECE_CAPTURE_SCORES[victim]! + 6 - (PIECE_CAPTURE_SCORES[attacker]! / 100)
+
+func initCaptureScores() {
+    for attacker in Piece.allValues {
+        for victim in Piece.allValues {
+            if CAPTURE_SCORE[victim] != nil {
+               CAPTURE_SCORE[victim]![attacker] = PIECE_CAPTURE_SCORES[victim]! + 6 - (PIECE_CAPTURE_SCORES[attacker]! / 100)
+            } else {
+                CAPTURE_SCORE[victim] = [ attacker: PIECE_CAPTURE_SCORES[victim]! + 6 - (PIECE_CAPTURE_SCORES[attacker]! / 100)]
+            }
+        }
+    }
+    print(PIECE_CAPTURE_SCORES)
+}

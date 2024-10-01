@@ -44,7 +44,7 @@ func generateUnsafeBoard(color color:Color, position:Board) -> BitBoard {
         var potentialKnightMoves:BitBoard
         var mask:BitBoard
         
-        //Calculate our mask to filter out illegal moves when we shift the Knight Span
+        //Calculate our mask to filter out illegal [Move] when we shift the Knight Span
         switch(knightIndex % 8 + 1) {
         case 1...2: mask = ~(FILE_G | FILE_H)
         case 7...8: mask = ~(FILE_A | FILE_B)
@@ -78,7 +78,7 @@ func generateUnsafeBoard(color color:Color, position:Board) -> BitBoard {
     var potentialKingMoves:BitBoard
     var mask:BitBoard
     
-    //Calculate our mask to filter out illegal moves when we shift the King Span
+    //Calculate our mask to filter out illegal [Move] when we shift the King Span
     switch(kingIndex % 8 + 1) {
     case 1: mask = ~FILE_H
     case 8: mask = ~FILE_A

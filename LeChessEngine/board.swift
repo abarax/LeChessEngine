@@ -85,6 +85,13 @@ enum Piece:Character {
     case BlackQueen  = "q"
     case BlackKing   = "k"
     case None        = " "
+    
+    static let allValues = [
+        WhitePawn, WhiteRook, WhiteKnight,
+        WhiteBishop, WhiteQueen, WhiteKing,
+        BlackPawn, BlackRook, BlackKnight,
+        BlackBishop, BlackQueen, BlackKing
+    ]
 }
 
 enum Square:Int {
@@ -173,6 +180,7 @@ struct Board : CustomStringConvertible, Hashable {
     var EnPassantSquare:Square = Square.None
     var PliesSinceLastPawnAdvanceOrCapture:Int = 0
     var MoveCount:Int = 0
+    var SearchPly:Int = 0
     var AllWhitePieces:BitBoard {
         return White.King | White.Queens | White.Rooks | White.Bishops | White.Knights | White.Pawns
     }

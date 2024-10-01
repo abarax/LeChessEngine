@@ -25,6 +25,7 @@ func doMove(inout board:Board, move:Move) -> Undo {
         enpassant: board.EnPassantSquare)
     
     board.MoveCount++
+    board.SearchPly++
     board.Turn = board.Turn == .White ? .Black : .White
     
     var piece:Piece
@@ -132,6 +133,7 @@ func undoMove(inout board:Board, undo:Undo) {
     board.Black.CanCastle = undo.castle.black
     board.EnPassantSquare = undo.enpassant
     board.MoveCount--
+    board.SearchPly--
     board.Turn = board.Turn == .White ? .Black : .White
     
     switch(undo.piece) {
@@ -181,4 +183,8 @@ func parseMove(move:String) -> Move {
             from:Square(rankAndFile: move[0...2]),
             to: Square(rankAndFile: move[2...4]))
     }
+}
+
+func isCapture(position:Board, move:Move) -> Bool {
+    return position[move.to.rawValue] != .None
 }
